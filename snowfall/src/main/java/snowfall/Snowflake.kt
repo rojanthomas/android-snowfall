@@ -24,15 +24,15 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Paint.Style
 import android.util.LruCache
-import java.lang.Math.cos
-import java.lang.Math.sin
 import java.lang.Math.toRadians
+import kotlin.math.cos
+import kotlin.math.sin
 
 internal class Snowflake(val params: Params) {
 
     private var size: Int = 0
     private var alpha: Int = 255
-    private lateinit var bitmap: Bitmap
+    private var bitmap: Bitmap? = null
     private var speedX: Double = 0.0
     private var speedY: Double = 0.0
     private var positionX: Double = 0.0
@@ -115,6 +115,14 @@ internal class Snowflake(val params: Params) {
     }
 
     fun draw(canvas: Canvas) {
+        bitmap?.run {
+            drawBitmap(canvas, this)
+        } ?: run {
+            canvas.drawCircle(positionX.toFloat(), positionY.toFloat(), size.toFloat(), paint)
+        }
+    }
+
+    private fun drawBitmap(canvas: Canvas, bitmap: Bitmap) {
         matrix.postRotate(ROTATION * (params.parentHeight - positionY).toFloat() / params.parentHeight)
         matrix.postTranslate(positionX.toFloat(), positionY.toFloat())
 
