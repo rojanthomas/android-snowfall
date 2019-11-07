@@ -46,11 +46,14 @@ class SnowfallView(context: Context, attrs: AttributeSet) : View(context, attrs)
 
     private lateinit var updateSnowflakesThread: UpdateSnowflakesThread
     private var snowflakes: Array<Snowflake>? = null
+    private val fallingSnowflakes: MutableList<Snowflake>
 
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.SnowfallView)
         try {
             snowflakesNum = a.getInt(R.styleable.SnowfallView_snowflakesNum, DEFAULT_SNOWFLAKES_NUM)
+            fallingSnowflakes = ArrayList(snowflakesNum)
+
             snowflakeAlphaMin = a.getInt(R.styleable.SnowfallView_snowflakeAlphaMin, DEFAULT_SNOWFLAKE_ALPHA_MIN)
             snowflakeAlphaMax = a.getInt(R.styleable.SnowfallView_snowflakeAlphaMax, DEFAULT_SNOWFLAKE_ALPHA_MAX)
             snowflakeAngleMax = a.getInt(R.styleable.SnowfallView_snowflakeAngleMax, DEFAULT_SNOWFLAKE_ANGLE_MAX)
@@ -138,13 +141,20 @@ class SnowfallView(context: Context, attrs: AttributeSet) : View(context, attrs)
         }
     }
 
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (isInEditMode) {
             return
         }
-        val fallingSnowflakes = snowflakes?.filter { it.isStillFalling() }
-        if (fallingSnowflakes?.isNotEmpty() == true) {
+
+        fallingSnowflakes.clear()
+        snowflakes?.filter { it.isStillFalling() }
+                ?.run { fallingSnowflakes.addAll(this) }
+
+        if (fallingSnowflakes.isNotEmpty()) {
+            visibility = VISIBLE
+
             fallingSnowflakes.forEach { it.draw(canvas) }
             updateSnowflakes()
         } else {
@@ -158,7 +168,6 @@ class SnowfallView(context: Context, attrs: AttributeSet) : View(context, attrs)
 
     fun restartFalling() {
         snowflakes?.forEach { it.shouldRecycleFalling = true }
-        visibility = VISIBLE
     }
 
     private fun createSnowflakes(): Array<Snowflake> {
