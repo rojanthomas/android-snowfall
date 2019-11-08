@@ -28,6 +28,7 @@ import android.util.LruCache
 import android.view.View
 import androidx.core.content.res.use
 import com.snowfall.R
+import snowfall.extensions.isSystemAnimationEnabled
 
 class SnowfallView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -144,7 +145,7 @@ class SnowfallView(context: Context, attrs: AttributeSet) : View(context, attrs)
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        if (isInEditMode) {
+        if (isInEditMode || !context.isSystemAnimationEnabled()) {
             return
         }
 
